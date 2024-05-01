@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <conio.h> // For _getch() function on Windows, use <curses.h> on Unix systems
 
 #define MAX_HEIGHT 100
 #define MAX_WIDTH 100
@@ -54,11 +53,11 @@ int main() {
 
     char key;
     do {
-        system("cls"); // Clear screen (for Windows)
+        system("clear"); // Clear screen (for Unix/Linux), use "cls" for Windows
         displayMaze();
 
-        // Get user input
-        key = _getch(); // Use _getch() for Windows, or getch() for Unix systems
+        printf("Enter a movement key ('w', 's', 'a', 'd') or 'q' to quit: ");
+        scanf(" %c", &key); // Space before %c ensures whitespace is ignored
 
         // Move player
         switch (key) {
@@ -124,7 +123,7 @@ void displayMaze() {
     }
 }
 
-bool isValidMove(int newRow, int newCol) {
+bool isValidMove(int newRow, newCol) {
     if (newRow >= 0 && newRow < height && newCol >= 0 && newCol < width && maze[newRow][newCol] != WALL) {
         return true;
     }
@@ -158,5 +157,8 @@ void movePlayer(char direction) {
             printf("\nCongratulations! You've reached the exit!\n");
             exit(EXIT_SUCCESS);
         }
+    } else {
+        printf("\nInvalid move! You hit a wall or went out of bounds.\n");
     }
 }
+
