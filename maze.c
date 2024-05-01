@@ -36,8 +36,13 @@ void displayMaze();
 bool isValidMove(int newRow, int newCol);
 void movePlayer(char direction);
 
-int main() {
-    char filename[] = "maze.txt"; // Example filename
+int main(int argc, char *argv[]) {
+    if (argc != 2) { // Expecting one argument (the maze file path)
+        fprintf(stderr, "Usage: %s <maze file path>\n", argv[0]);
+        return 1;
+    }
+
+    char *filename = argv[1];
     loadMazeFromFile(filename);
 
     // Find player position
@@ -53,11 +58,11 @@ int main() {
 
     char key;
     do {
-        system("clear"); // Clear screen (on Windows, use "cls")
+        system("clear"); // Clear screen on Unix/Linux, use "cls" on Windows
         displayMaze();
 
         printf("Enter a movement key ('w', 's', 'a', 'd') or 'q' to quit: ");
-        scanf(" %c", &key); // Space before %c to skip leading whitespace
+        scanf(" %c", &key); // Space before %c to avoid reading leftover newline
 
         // Move player based on input
         switch (key) {
@@ -110,7 +115,7 @@ void loadMazeFromFile(char *filename) {
 }
 
 void displayMaze() {
-    // Display the maze with the player's position
+    // Display the maze, showing the player's current position
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
             if (i == playerRow && j == playerCol) {
@@ -124,10 +129,7 @@ void displayMaze() {
 }
 
 bool isValidMove(int newRow, int newCol) {
-    if (newRow >= 0 && newRow < height && newCol >= 0 && newCol < width && maze[newRow][newCol] != WALL) {
-        return true;
-    }
-    return false;
+    return (newRow >= 0 && newRow < height && newCol >= 0 && newCol < width && maze[newRow][newCol] != WALL);
 }
 
 void movePlayer(char direction) {
