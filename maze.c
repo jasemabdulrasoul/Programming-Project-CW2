@@ -53,13 +53,13 @@ int main() {
 
     char key;
     do {
-        system("clear"); // Clear screen (for Unix/Linux), use "cls" for Windows
+        system("clear"); // Clear screen (on Windows, use "cls")
         displayMaze();
 
         printf("Enter a movement key ('w', 's', 'a', 'd') or 'q' to quit: ");
-        scanf(" %c", &key); // Space before %c ensures whitespace is ignored
+        scanf(" %c", &key); // Space before %c to skip leading whitespace
 
-        // Move player
+        // Move player based on input
         switch (key) {
             case KEY_UP:
                 movePlayer('U');
@@ -110,7 +110,7 @@ void loadMazeFromFile(char *filename) {
 }
 
 void displayMaze() {
-    // Display the maze
+    // Display the maze with the player's position
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
             if (i == playerRow && j == playerCol) {
@@ -123,7 +123,7 @@ void displayMaze() {
     }
 }
 
-bool isValidMove(int newRow, newCol) {
+bool isValidMove(int newRow, int newCol) {
     if (newRow >= 0 && newRow < height && newCol >= 0 && newCol < width && maze[newRow][newCol] != WALL) {
         return true;
     }
@@ -158,7 +158,6 @@ void movePlayer(char direction) {
             exit(EXIT_SUCCESS);
         }
     } else {
-        printf("\nInvalid move! You hit a wall or went out of bounds.\n");
+        printf("Invalid move! Hit a wall or out of bounds.\n");
     }
 }
-
