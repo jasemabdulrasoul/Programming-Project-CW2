@@ -21,17 +21,17 @@
 #define KEY_RIGHT 'd'
 #define KEY_QUIT 'q'
 
-// Define maze dimensions
-int height, width;
-
 // Maze array
-char maze[MAX_HEIGHT][MAX_WIDTH];
+char maze[MAX_HEIGHT][MAX_WIDTH + 1]; // +1 for null-terminator
+
+// Maze dimensions
+int height = 0, width = 0;
 
 // Player position
-int playerRow, playerCol;
+int playerRow = -1, playerCol = -1;
 
 // Function prototypes
-void loadMazeFromFile(char *filename);
+bool loadMazeFromFile(char *filename);
 void displayMaze();
 bool isValidMove(int newRow, int newCol);
 void movePlayer(char direction);
@@ -43,9 +43,11 @@ int main(int argc, char *argv[]) {
     }
 
     char *filename = argv[1];
-    loadMazeFromFile(filename);
+    if (!loadMazeFromFile(filename)) {
+        return 1; // Failed to load the maze
+    }
 
-    // Find player position
+    // Find player start position
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
             if (maze[i][j] == START) {
@@ -56,15 +58,19 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    if (playerRow == -1 || playerCol == -1) {
+        fprintf(stderr, "Start position not found.\n");
+        return 1;
+    }
+
     char key;
     do {
-        system("clear"); // Clear screen on Unix/Linux, use "cls" on Windows
+        system("cls");
         displayMaze();
 
         printf("Enter a movement key ('w', 's', 'a', 'd') or 'q' to quit: ");
-        scanf(" %c", &key); // Space before %c to avoid reading leftover newline
+        scanf(" %c", &key); // Space before %c to skip leading whitespace
 
-        // Move player based on input
         switch (key) {
             case KEY_UP:
                 movePlayer('U');
@@ -82,36 +88,41 @@ int main(int argc, char *argv[]) {
                 printf("\nQuitting game.\n");
                 break;
             default:
-                printf("\nInvalid input. Use 'w', 'a', 's', 'd' to move, or 'q' to quit.\n");
+                printf("Invalid input. Use 'w', 'a', 's', 'd' to move, or 'q' to quit.\n");
         }
     } while (key != KEY_QUIT);
 
     return 0;
 }
 
-void loadMazeFromFile(char *filename) {
+bool loadMazeFromFile(char *filename) {
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
         perror("Error opening file");
-        exit(EXIT_FAILURE);
+        return false;
     }
 
-    if (fscanf(file, "%d %d", &height, &width) != 2) {
-        fprintf(stderr, "Invalid maze dimensions.\n");
-        fclose(file);
-        exit(EXIT_FAILURE);
-    }
+    char line[MAX_WIDTH + 2]; // +2 for newline and null terminator
+    height = 0;
 
-    // Read maze into array
-    for (int i = 0; i < height; i++) {
-        if (fscanf(file, "%s", maze[i]) == EOF) {
-            fprintf(stderr, "Error reading maze.\n");
-            fclose(file);
-            exit(EXIT_FAILURE);
+    while (fgets(line, sizeof(line), file) != NULL && height < MAX_HEIGHT) {
+        // Remove newline at the end
+        size_t len = strlen(line);
+        if (line[len - 1] == '\n') {
+            line[len - 1] = '\0';
         }
+
+        // Store the row in the maze array
+        strcpy(maze[height], line);
+        height++;
     }
 
     fclose(file);
+
+    // Determine the maze's width based on the first row
+    width = strlen(maze[0]);
+
+    return true;
 }
 
 void displayMaze() {
@@ -129,7 +140,7 @@ void displayMaze() {
 }
 
 bool isValidMove(int newRow, int newCol) {
-    return (newRow >= 0 && newRow < height && newCol >= 0 && newCol < width && maze[newRow][newCol] != WALL);
+    return newRow >= 0 && newRow < height && newCol >= 0 && newCol < width && maze[newRow][newCol] != WALL;
 }
 
 void movePlayer(char direction) {
@@ -160,6 +171,6 @@ void movePlayer(char direction) {
             exit(EXIT_SUCCESS);
         }
     } else {
-        printf("Invalid move! Hit a wall or out of bounds.\n");
+        printf("Invalid move! Hit a wall or went out of bounds.\n");
     }
 }
