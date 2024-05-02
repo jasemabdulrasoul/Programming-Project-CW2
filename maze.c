@@ -10,32 +10,31 @@
 #define MAX_DIMENSION 100
 #define MIN_DIMENSION 5
 
-// Define maze characters
+// Define maze characters.
 #define WALL '#'
 #define PATH ' '
 #define START 'S'
 #define EXIT 'E'
 
-// Define player character
+// Define player character.
 #define PLAYER 'X'
 
-// Define movement keys
+// Define movement keys.
 #define KEY_UP 'w'
 #define KEY_DOWN 's'
 #define KEY_LEFT 'a'
 #define KEY_RIGHT 'd'
 #define KEY_QUIT 'q'
 
-// Maze array
-char maze[MAX_HEIGHT][MAX_WIDTH + 1]; // +1 for null-terminator
+// Maze array.
+char maze[MAX_HEIGHT][MAX_WIDTH + 1]; // +1 for null terminator.
 
-// Maze dimensions
+// Maze dimensions.
 int height = 0, width = 0;
 
-// Player position
+// Player position.
 int playerRow = -1, playerCol = -1;
 
-// Function prototypes
 bool loadMazeFromFile(char *filename);
 bool validateMaze();
 void displayMaze();
@@ -43,19 +42,19 @@ bool isValidMove(int newRow, int newCol);
 void movePlayer(char direction);
 
 int main(int argc, char *argv[]) {
-    if (argc != 2) { // Expecting one argument (the maze file path)
+    if (argc != 2) { // Should have one argument.
         fprintf(stderr, "Usage: %s <maze file path>\n", argv[0]);
         return 1;
     }
 
     char *filename = argv[1];
     if (!loadMazeFromFile(filename)) {
-        return 2; // Failed to load the maze
+        return 2;
     }
 
 
     if (!validateMaze()) {
-        return 3; // Maze validation failed
+        return 3;
     }
 
     // Find player start position
@@ -79,9 +78,9 @@ int main(int argc, char *argv[]) {
     do {
 
         printf("Enter a movement key ('w', 's', 'a', 'd') or 'm' for map or 'q' to quit: ");
-        scanf(" %c", &key); // Space before %c to skip leading whitespace
+        scanf(" %c", &key); // Space before %c to skip leading whitespace.
 
-        switch (key) {
+        switch (key) { // Switch for movement depending on input.
             case KEY_UP:
                 movePlayer('U');
                 break;
@@ -117,23 +116,23 @@ bool loadMazeFromFile(char *filename) {
     }
 
     height = 0;
-    char line[MAX_WIDTH + 2]; // +2 for newline and null terminator
+    char line[MAX_WIDTH + 2]; // +2 for newline and null terminator.
 
     while (fgets(line, sizeof(line), file) != NULL) {
-        // Strip newline at the end
+        // Remove newline at the end.
         size_t len = strlen(line);
         if (line[len - 1] == '\n') {
             line[len - 1] = '\0';
         }
 
-        // Check if height exceeds MAX_HEIGHT
+        // Check if height exceeds limit.
         if (height >= MAX_HEIGHT) {
             fprintf(stderr, "Maze height exceeds the maximum limit of %d.\n", MAX_HEIGHT);
             fclose(file);
             return false;
         }
 
-        strcpy(maze[height], line); // Store row in maze array
+        strcpy(maze[height], line); // Store row in maze array.
         height++;
     }
 
@@ -155,7 +154,7 @@ bool loadMazeFromFile(char *filename) {
 }
 
 bool validateMaze() {
-    // Ensure consistent row width
+    // Make sure that each row is of the same width.
     for (int i = 0; i < height; i++) {
         if (strlen(maze[i]) != width) {
             fprintf(stderr, "Inconsistent height or width.\n");
@@ -163,9 +162,9 @@ bool validateMaze() {
         }
     }
 
-    // Ensure valid characters and consistent column heights
+    // Check for invalid characters.
     for (int j = 0; j < width; j++) {
-        int columnHeight = 0; // Counter to check column height consistency
+        int columnHeight = 0;
 
         for (int i = 0; i < height; i++) {
             char c = maze[i][j];
@@ -175,11 +174,11 @@ bool validateMaze() {
             }
 
             if (c != '\0') {
-                columnHeight++; // Increment if the cell is not empty
+                columnHeight++;
             }
         }
 
-        if (columnHeight != height) { // Check if column has consistent height
+        if (columnHeight != height) { // Make sure that every column is of the same height.
             fprintf(stderr, "Inconsistent height or width.\n");
             return false;
         }
@@ -189,7 +188,7 @@ bool validateMaze() {
 }
 
 void displayMaze() {
-    // Display the maze, showing the player's current position
+    // Display the maze showing the player's current position.
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
             if (i == playerRow && j == playerCol) {
@@ -202,7 +201,7 @@ void displayMaze() {
     }
 }
 
-bool isValidMove(int newRow, int newCol) {
+bool isValidMove(int newRow, int newCol) { // Check if the move is valid.
     return newRow >= 0 && newRow < height && newCol >= 0 && newCol < width && maze[newRow][newCol] != WALL;
 }
 
@@ -210,7 +209,7 @@ void movePlayer(char direction) {
     int newRow = playerRow;
     int newCol = playerCol;
 
-    switch (direction) {
+    switch (direction) { // Switch to move the player depending on the direction that we got from the input.
         case 'U':
             newRow--;
             break;
