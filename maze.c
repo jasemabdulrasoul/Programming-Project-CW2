@@ -13,7 +13,7 @@
 #define EXIT 'E'
 
 // Define player character
-#define PLAYER '@'
+#define PLAYER 'X'
 
 // Define movement keys
 #define KEY_UP 'w'
@@ -65,31 +65,34 @@ int main(int argc, char *argv[]) {
     }
 
     char key;
+    displayMaze();
     do {
-        system("cls");
-        displayMaze();
 
-        printf("Enter a movement key ('w', 's', 'a', 'd') or 'q' to quit: ");
+        printf("Enter a movement key ('w', 's', 'a', 'd') or 'm' for map or 'q' to quit: ");
         scanf(" %c", &key); // Space before %c to skip leading whitespace
 
         switch (key) {
             case KEY_UP:
-                movePlayer('U');
+                movePlayer("U");
                 break;
             case KEY_DOWN:
-                movePlayer('D');
+                movePlayer("D");
                 break;
             case KEY_LEFT:
-                movePlayer('L');
+                movePlayer("L");
                 break;
             case KEY_RIGHT:
-                movePlayer('R');
+                movePlayer("R");
                 break;
             case KEY_QUIT:
                 printf("\nQuitting game.\n");
                 break;
+            case "m":
+            case "M":
+                displayMaze();
+                break;
             default:
-                printf("Invalid input. Use 'w', 'a', 's', 'd' to move, or 'q' to quit.\n");
+                printf("Invalid input. Use 'w', 'a', 's', 'd' to move, 'm' for map, or 'q' to quit.\n");
         }
     } while (key != KEY_QUIT);
 
