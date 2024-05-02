@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
 
 
     if (!validateMaze()) {
-        return 1; // Maze validation failed
+        return 3; // Maze validation failed
     }
 
     // Find player start position
@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
 
     if (playerRow == -1 || playerCol == -1) {
         fprintf(stderr, "Start position not found.\n");
-        return 3;
+        return 100;
     }
 
     char key;
