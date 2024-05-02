@@ -5,6 +5,10 @@
 
 #define MAX_HEIGHT 100
 #define MAX_WIDTH 100
+#define MIN_HEIGHT 5
+#define MIN_WIDTH 5
+#define MAX_DIMENSION 100
+#define MIN_DIMENSION 5
 
 // Define maze characters
 #define WALL '#'
@@ -33,6 +37,7 @@ int playerRow = -1, playerCol = -1;
 
 // Function prototypes
 bool loadMazeFromFile(char *filename);
+bool validateMaze();
 void displayMaze();
 bool isValidMove(int newRow, int newCol);
 void movePlayer(char direction);
@@ -45,7 +50,12 @@ int main(int argc, char *argv[]) {
 
     char *filename = argv[1];
     if (!loadMazeFromFile(filename)) {
-        return 1; // Failed to load the maze
+        return 2; // Failed to load the maze
+    }
+
+
+    if (!validateMaze()) {
+        return 1; // Maze validation failed
     }
 
     // Find player start position
@@ -61,7 +71,7 @@ int main(int argc, char *argv[]) {
 
     if (playerRow == -1 || playerCol == -1) {
         fprintf(stderr, "Start position not found.\n");
-        return 1;
+        return 3;
     }
 
     char key;
@@ -73,22 +83,22 @@ int main(int argc, char *argv[]) {
 
         switch (key) {
             case KEY_UP:
-                movePlayer("U");
+                movePlayer('U');
                 break;
             case KEY_DOWN:
-                movePlayer("D");
+                movePlayer('D');
                 break;
             case KEY_LEFT:
-                movePlayer("L");
+                movePlayer('L');
                 break;
             case KEY_RIGHT:
-                movePlayer("R");
+                movePlayer('R');
                 break;
             case KEY_QUIT:
                 printf("\nQuitting game.\n");
                 break;
-            case "m":
-            case "M":
+            case 'm':
+            case 'M':
                 displayMaze();
                 break;
             default:
@@ -106,25 +116,74 @@ bool loadMazeFromFile(char *filename) {
         return false;
     }
 
-    char line[MAX_WIDTH + 2]; // +2 for newline and null terminator
     height = 0;
+    char line[MAX_WIDTH + 2]; // +2 for newline and null terminator
 
-    while (fgets(line, sizeof(line), file) != NULL && height < MAX_HEIGHT) {
-        // Remove newline at the end
+    while (fgets(line, sizeof(line), file) != NULL) {
+        // Strip newline at the end
         size_t len = strlen(line);
         if (line[len - 1] == '\n') {
             line[len - 1] = '\0';
         }
 
-        // Store the row in the maze array
-        strcpy(maze[height], line);
+        // Check if height exceeds MAX_HEIGHT
+        if (height >= MAX_HEIGHT) {
+            fprintf(stderr, "Maze height exceeds the maximum limit of %d.\n", MAX_HEIGHT);
+            fclose(file);
+            return false;
+        }
+
+        strcpy(maze[height], line); // Store row in maze array
         height++;
     }
 
     fclose(file);
 
-    // Determine the maze's width based on the first row
+    if (height < MIN_HEIGHT) {
+        fprintf(stderr, "Maze height is below the minimum limit of %d.\n", MIN_HEIGHT);
+        return false;
+    }
+
     width = strlen(maze[0]);
+
+    if (width < MIN_WIDTH || width > MAX_WIDTH) {
+        fprintf(stderr, "Maze width must be between %d and %d.\n", MIN_WIDTH, MAX_WIDTH);
+        return false;
+    }
+
+    return true;
+}
+
+bool validateMaze() {
+    // Ensure consistent row width
+    for (int i = 0; i < height; i++) {
+        if (strlen(maze[i]) != width) {
+            fprintf(stderr, "Inconsistent height or width.\n");
+            return false;
+        }
+    }
+
+    // Ensure valid characters and consistent column heights
+    for (int j = 0; j < width; j++) {
+        int columnHeight = 0; // Counter to check column height consistency
+
+        for (int i = 0; i < height; i++) {
+            char c = maze[i][j];
+            if (c != WALL && c != PATH && c != START && c != EXIT) {
+                fprintf(stderr, "Invalid character found in maze.\n");
+                return false;
+            }
+
+            if (c != '\0') {
+                columnHeight++; // Increment if the cell is not empty
+            }
+        }
+
+        if (columnHeight != height) { // Check if column has consistent height
+            fprintf(stderr, "Inconsistent height or width.\n");
+            return false;
+        }
+    }
 
     return true;
 }
